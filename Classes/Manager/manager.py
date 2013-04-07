@@ -1,4 +1,18 @@
+import sys
+sys.path.append('../../Lib/')
+
 from graphics import *
+
+class Manager:
+    def __init__(self, scenario, save_filename):
+        """Creates a new manager object based off the given scenario representation
+
+        Keyword Args:
+        scenario -- dict representing all information necessary for the scenario
+        save_filename -- name to save the scenario's current state to
+        """
+        pass
+
    
 # creates new GraphWin object, 500x500 pixels in size
 win = GraphWin("My GUI Program", 500, 500)
@@ -41,7 +55,5 @@ text = Text(Point(*c4),"fat")
 text.setSize(32)
 text.draw(win)
 
+win.getMouse()
 
-
-while(1):
-    pass
