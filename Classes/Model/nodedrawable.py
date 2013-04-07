@@ -31,7 +31,7 @@ class FolderDrawable(NodeDrawable):
         else:
             self.children = children
 
-class NodeDrawable(NodeDrawable):
+class BookmarkDrawable(NodeDrawable):
 
     def __init__(self,
                  name = '',
