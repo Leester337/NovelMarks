@@ -70,9 +70,31 @@ class Renderer:
         pass
         # draw the entire hierarchy
 
+    """
+    returns the object clicked within a folder currently opened. If whitespace was clicked,
+    then it just returns the folder opened. It checked TWO levels deep. In other words it
+    checks to see if any children were clicked of the opened folder and any children of a child
+    of the opened folder.
+    """
     def get_object_clicked(self):
+        
         click_point = getMouse()
         # return the node at the click position
+        child_clicked = find_subobject(self, self.root_drawable, click_point)
+        subchild_clicked = find_subobject(self, child_clicked, click_point)
+        return subchild_clicked
+
+
+    def find_subobject(self, parent, click_point):
+        for child in parent.children:
+            click_center_dist = math.sqrt(math.pow((click_point.x - child.position.x), 2) + \
+                math.pow((click_point.y - child.position.y), 2))
+            #if the click was within the child object of the current folder
+            if (click_center_dist <= child.radius):
+                return child
+        #if no children were clicked, user clicked open space and return the parent object
+        return parent
+
 
 
 
