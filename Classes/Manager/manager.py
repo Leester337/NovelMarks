@@ -16,7 +16,25 @@ class Manager:
    
 # creates new GraphWin object, 500x500 pixels in size
 win = GraphWin("My GUI Program", 500, 500)
-c1,r1 = (100,60),50
+
+titlebar = Rectangle(Point(0,0), Point(510,40))
+titlebar.setFill("gray")
+titlebar.draw(win)
+
+#title for NovelMarks
+text = Text(Point(50,20),"NovelMarks")
+text.draw(win)
+
+#search box
+entry = Entry(Point(220, 20), 20)
+entry.setText("search")
+entry.draw(win)
+
+text = Text(Point(350, 20), "sort by:")
+text.setSize(8)
+text.draw(win)
+
+c1,r1 = (100,150),50
 c2,r2 = (190,100),30
 c3,r3 = (240,180),40
 c4,r4 = (380,320),80
