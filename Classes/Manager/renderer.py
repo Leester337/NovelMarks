@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('../../Lib/')
 
 from graphics import *
@@ -9,17 +10,15 @@ from random import random
 __author__ = 'john'
 
 class Renderer:
-
     def __init__(self):
         self.root = None
         self.width = 640
         self.height = 640
         self.win = GraphWin('My GUI Program', self.width, self.height)
-        self.win.getMouse()
 
     def convert_node(self, node, position, radius, color):
         if isinstance(node, Folder):
-            node_drawable = FolderDrawable( node.name,
+            node_drawable = FolderDrawable(node.name,
                 node.date,
                 node.clickCount,
                 color,
@@ -27,7 +26,7 @@ class Renderer:
                 position,
                 node.children)
         else:
-            node_drawable = BookmarkDrawable( node.name,
+            node_drawable = BookmarkDrawable(node.name,
                 node.date,
                 node.clickCount,
                 color,
@@ -46,7 +45,7 @@ class Renderer:
         color = 'green'
         radius = 100
         for node in nodes:
-            position = Point(100*random(), 100*random())
+            position = Point(100 * random(), 100 * random())
             node_drawable = convert_node(node, position, radius, color)
             node_drawables.append(node_drawable)
             size = radius - 10
@@ -66,9 +65,21 @@ class Renderer:
         else:
             self.root_drawable = self.root_drawable[0]
 
-    def draw(self, node):
-        pass
-        # draw the entire hierarchy
+    def draw(self, node_drawable):
+        point = node_drawable.position
+        circle = Circle(point, node_drawable.radius)
+        circle.setFill(node_drawable.color)
+        text_position = Point(point.getX(), point.getY() + 1.3 * node_drawable.radius)
+        text = Text(text_position, node_drawable.name)
+        text.setSize(5 + 31 * node_drawable.radius / 100)
+
+        circle.draw(self.win)
+        text.draw(self.win)
+
+        if isinstance(node_drawable, FolderDrawable):
+            for child in node_drawable.children:
+                self.draw(child)
+
 
     """
     returns the object clicked within a folder currently opened. If whitespace was clicked,
@@ -76,8 +87,8 @@ class Renderer:
     checks to see if any children were clicked of the opened folder and any children of a child
     of the opened folder.
     """
+
     def get_object_clicked(self):
-        
         click_point = getMouse()
         # return the node at the click position
         child_clicked = find_subobject(self, self.root_drawable, click_point)
@@ -87,12 +98,12 @@ class Renderer:
 
     def find_subobject(self, parent, click_point):
         for child in parent.children:
-            click_center_dist = math.sqrt(math.pow((click_point.x - child.position.x), 2) + \
-                math.pow((click_point.y - child.position.y), 2))
+            click_center_dist = math.sqrt(math.pow((click_point.x - child.position.x), 2) +\
+                                          math.pow((click_point.y - child.position.y), 2))
             #if the click was within the child object of the current folder
             if (click_center_dist <= child.radius):
                 return child
-        #if no children were clicked, user clicked open space and return the parent object
+            #if no children were clicked, user clicked open space and return the parent object
         return parent
 
 
