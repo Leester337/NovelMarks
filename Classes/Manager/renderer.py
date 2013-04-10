@@ -24,24 +24,7 @@ class Renderer:
         self.win = GraphWin('My GUI Program', self.width, self.height)
 
     def convert_node(self, node, position, radius, color):
-        if isinstance(node, Folder):
-            node_drawable = FolderDrawable(node.name,
-                node.date,
-                node.clickCount,
-                color,
-                radius,
-                position,
-                node.children)
-        else:
-            node_drawable = BookmarkDrawable(node.name,
-                node.date,
-                node.clickCount,
-                color,
-                radius,
-                position,
-                node.url)
-        return node_drawable
-
+        return NodeDrawable(node, position, radius, color)
 
     def convert_nodes_to_drawables(self, nodes, parent_pos, parent_rad):
         if not nodes:
@@ -61,9 +44,9 @@ class Renderer:
             radius = radius * 0.9
 
         for node_drawable in node_drawables:
-            if isinstance(node_drawable, FolderDrawable):
+            if isinstance(node_drawable.enclosed_node, Folder):
                 node_drawable.children = self.convert_nodes_to_drawables(
-                    node_drawable.children,
+                    node_drawable.enclosed_node.children,
                     node_drawable.position,
                     node_drawable.radius)
 
@@ -74,18 +57,15 @@ class Renderer:
         circle = Circle(point, node_drawable.radius)
         circle.setFill(node_drawable.color)
         text_position = Point(point.getX(), point.getY() + 1.3 * node_drawable.radius)
-        text = Text(text_position, node_drawable.name)
+        text = Text(text_position, node_drawable.enclosed_node.name)
         text.setSize(5 + 31 * int(node_drawable.radius / (450)))
 
         circle.draw(self.win)
         text.draw(self.win)
 
-        if isinstance(node_drawable, FolderDrawable):
+        if isinstance(node_drawable.enclosed_node, Folder):
             for child in node_drawable.children:
                 self.draw_helper(child)
-
-    def convert_node_hierarchy(self, node):
-        pass
 
     def draw(self, node):
         self.root = node
@@ -93,7 +73,7 @@ class Renderer:
         root_rad = self.half - 10
         self.root_drawable = self.convert_node(node, root_loc, root_rad, "blue")
         self.root_drawable.children = self.convert_nodes_to_drawables(
-            self.root_drawable.children, root_loc, root_rad)
+            self.root_drawable.enclosed_node.children, root_loc, root_rad)
 
         self.draw_helper(self.root_drawable)
 
