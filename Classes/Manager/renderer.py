@@ -1,10 +1,11 @@
 import sys
 
 sys.path.append('../../Lib/')
+sys.path.append('../Model/')
 
 from graphics import *
-from Classes.Model.node import *
-from Classes.Model.nodedrawable import *
+from node import *
+from nodedrawable import *
 
 __author__ = 'john'
 # Coordinates for first group of four points
