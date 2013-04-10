@@ -69,16 +69,7 @@ class Renderer:
 
         return node_drawables
 
-
-    def convert_node_hierarchy(self, node):
-        self.root = node
-        root_loc = Point(self.half, self.half)
-        root_rad = self.half - 10
-        self.root_drawable = self.convert_node(node, root_loc, root_rad, "blue")
-        self.root_drawable.children = self.convert_nodes_to_drawables(
-            self.root_drawable.children, root_loc, root_rad)
-
-    def draw(self, node_drawable):
+    def draw_helper(self, node_drawable):
         point = node_drawable.position
         circle = Circle(point, node_drawable.radius)
         circle.setFill(node_drawable.color)
@@ -91,7 +82,20 @@ class Renderer:
 
         if isinstance(node_drawable, FolderDrawable):
             for child in node_drawable.children:
-                self.draw(child)
+                self.draw_helper(child)
+
+    def convert_node_hierarchy(self, node):
+        pass
+
+    def draw(self, node):
+        self.root = node
+        root_loc = Point(self.half, self.half)
+        root_rad = self.half - 10
+        self.root_drawable = self.convert_node(node, root_loc, root_rad, "blue")
+        self.root_drawable.children = self.convert_nodes_to_drawables(
+            self.root_drawable.children, root_loc, root_rad)
+
+        self.draw_helper(self.root_drawable)
 
 
     """

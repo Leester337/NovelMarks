@@ -17,23 +17,22 @@ if __name__ == "__main__":
 
     # Testing conversion using algorithm to drawable hierarchy
     root_children = [
-        Folder('classes', 'date', 10, None),
-        Bookmark('google', 'date', 15, 'www.google.com'),
-        Folder('classes', 'date', 10, None),
-        Bookmark('google', 'date', 15, 'www.google.com'),
-        Folder('classes', 'date', 10, None),
-        Bookmark('google', 'date', 15, 'www.google.com'),
-        Folder('classes', 'date', 10, None),
-        Bookmark('google', 'date', 15, 'www.google.com'),
-        ]
+        Folder('classes', None, 'date', 10),
+        Bookmark('google', 'www.google.com', 'date', 15),
+        Folder('classes', None, 'date', 10),
+        Bookmark('google', 'www.google.com', 'date', 15),
+        Folder('classes', None, 'date', 10),
+        Bookmark('google', 'www.google.com', 'date', 15),
+        Folder('classes', None, 'date', 10),
+        Bookmark('google', 'www.google.com', 'date', 15)
+    ]
 
-    cs = Folder('computer science', 'date', 0, root_children)
-    work = Folder('computer science', 'date', 0, [])
-    root = Folder('root', 'date', 0, [cs, work])
+    cs = Folder('computer science', root_children, 'date', 0)
+    work = Folder('computer science', [], 'date', 0)
+    root = Folder('root', [cs, work], 'date', 0)
 
-    renderer.convert_node_hierarchy(root);
-    renderer.draw(renderer.root_drawable);
-    #renderer.draw(root_drawable)
+    #renderer.convert_node_hierarchy(root)
+    renderer.draw(root)
     renderer.win.getMouse()
 
 
