@@ -10,3 +10,4 @@ class NodeDrawable():
         self.radius = radius
         self.position = position
         self.children = []
+        self.parent = None

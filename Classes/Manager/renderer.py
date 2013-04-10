@@ -50,6 +50,8 @@ class Renderer:
                     node_drawable.enclosed_node.children,
                     node_drawable.position,
                     node_drawable.radius)
+                for node_child in node_drawable.children:
+                    node_child.parent = node_drawable
 
         return node_drawables
 
@@ -69,6 +71,7 @@ class Renderer:
                 self.draw_helper(child)
 
     def draw(self, node):
+        # Convert the hierarchy into node drawables
         self.root = node
         root_loc = Point(self.half, self.half)
         root_rad = self.half - 10
@@ -76,6 +79,7 @@ class Renderer:
         self.root_drawable.children = self.convert_nodes_to_drawables(
             self.root_drawable.enclosed_node.children, root_loc, root_rad)
 
+        # Draw the hierarchy
         self.draw_helper(self.root_drawable)
 
 
