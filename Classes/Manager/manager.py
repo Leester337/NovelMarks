@@ -26,7 +26,21 @@ class Manager:
         Return:
         System state (which may be indication to exit)
         """
-        pass
+        mousePt = getMouse()
+        if (mousePt.getY() >= 10 && mousePt.getY() <= 30):
+            if (mousePt.getX() >= 402 && mousePt.getX() <= 445):
+                #Search box was clicked
+                #TODO: retrieve text by calling getText() on the entry box
+            else if (mousePt.getX() >= 540 && mousePt.getX() <= 580):
+                #Sort by Folders was clicked
+            else if (mousePt.getX() >= 604 && mousePt.getX() <= 636):
+                #Sort by Name was clicked
+            else if (mousePt.getX() >= 655 && mousePt.getX() <= 685):
+                #Sort by Date was clicked
+        else if (mousePt.getY() >= 40):
+            #the bookmark space was clicked, proceed to check to see if a circle was clicked
+        
+
 
 
 

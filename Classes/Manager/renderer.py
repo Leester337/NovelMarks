@@ -13,12 +13,16 @@ _f_g = .45
 # Coordinates for the second group of four points
 _s_g = .54
 
+
 center_diffs = [(0, -_f_g), (_f_g, 0), (0, _f_g), (-_f_g, 0),
     (_s_g, -_s_g), (_s_g, _s_g), (-_s_g, _s_g), (-_s_g, -_s_g)]
 colors = ['blue', 'cyan', 'forest green', 'medium orchid',
           'dark orange', 'gold', 'light cyan', 'medium slate blue']
 map_level_to_font_size = {0: 30, 1: 18, 2: 10, 3: 18, 4: 14, 5: 10}
 radius_factor = [1, 1, 1, 1, .5, .5, .5, .5]
+
+_title_bar_height = 40
+
 
 
 class Renderer:
@@ -30,8 +34,51 @@ class Renderer:
 
         self.win = GraphWin('My GUI Program', self.width, self.height)
 
+        self.setUpTitleBar()
+
     def convert_node(self, node, position, radius, color_index, level):
         return NodeDrawable(node, position, radius, colors[color_index], level)
+
+
+
+    def setUpTitleBar(self):
+        titlebar = Rectangle(Point(0,0), Point(self.width,_title_bar_height))
+        titlebar.setFill("gray")
+        titlebar.draw(self.win)
+        
+        # title for NovelMarks
+        text = Text(Point(50,20),"NovelMarks")
+        text.draw(self.win)
+        
+        # search box
+        entry = Entry(Point(260, 20), 30)
+        entry.draw(self.win)
+        
+        text = Text(Point(423, 20), "search")
+        text.setSize(8)
+        text.draw(self.win)
+
+        button = Rectangle(Point(402, 10), Point(445, 30))
+        button.draw(self.win)
+
+        text = Text(Point(500, 20), "sort by:")
+        text.setSize(8)
+        text.draw(self.win)
+
+        text = Text(Point(560, 20), "folders")
+        text.setSize(10)
+        text.setStyle("bold")
+        text.draw(self.win)
+
+        text = Text(Point(620, 20), "name")
+        text.setSize(10)
+        text.setStyle("bold")
+        text.draw(self.win)
+
+        text = Text(Point(670, 20), "date")
+        text.setSize(10)
+        text.setStyle("bold")
+        text.draw(self.win)
 
     def convert_nodes_to_drawables(self, nodes, parent_pos, parent_rad, color_index, level):
         if not nodes:
@@ -82,7 +129,8 @@ class Renderer:
     def draw(self, node):
         # Convert the hierarchy into node drawables
         self.root = node
-        root_loc = Point(self.half, self.half)
+        # added _title_bar_height to the y parameter to make room for the titlebar
+        root_loc = Point(self.half, self.half + _title_bar_height)
         root_rad = self.half - 10
         root_level = 0
         color_index = 0

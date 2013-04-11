@@ -33,6 +33,8 @@ if __name__ == "__main__":
 
     #renderer.convert_node_hierarchy(root)
     renderer.draw(root)
-    renderer.win.getMouse()
+    pt = renderer.win.getMouse()
+    print "X: " + str(pt.getX())
+    print "Y: " + str(pt.getY())
 
 
