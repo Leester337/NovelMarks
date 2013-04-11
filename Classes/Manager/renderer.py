@@ -13,6 +13,13 @@ _f_g = .45
 # Coordinates for the second group of four points
 _s_g = .54
 
+center_diffs = [(0, -_f_g), (_f_g, 0), (0, _f_g), (-_f_g, 0),
+    (_s_g, -_s_g), (_s_g, _s_g), (-_s_g, _s_g), (-_s_g, -_s_g)]
+colors = ['blue', 'cyan', 'forest green', 'medium orchid',
+          'dark orange', 'gold', 'light cyan', 'medium slate blue']
+map_level_to_font_size = {0: 30, 1: 18, 2: 10, 3: 18, 4: 14, 5: 10}
+radius_factor = [1, 1, 1, 1, .5, .5, .5, .5]
+
 
 class Renderer:
     def __init__(self):
@@ -20,36 +27,38 @@ class Renderer:
         self.width = 850
         self.height = 850
         self.half = self.width / 2
-        self.center_diffs = [(0, -_f_g), (_f_g, 0), (0, _f_g), (-_f_g, 0),
-            (_s_g, -_s_g), (_s_g, _s_g), (-_s_g, _s_g), (-_s_g, -_s_g)]
+
         self.win = GraphWin('My GUI Program', self.width, self.height)
 
-    def convert_node(self, node, position, radius, color):
-        return NodeDrawable(node, position, radius, color)
+    def convert_node(self, node, position, radius, color_index, level):
+        return NodeDrawable(node, position, radius, colors[color_index], level)
 
-    def convert_nodes_to_drawables(self, nodes, parent_pos, parent_rad):
+    def convert_nodes_to_drawables(self, nodes, parent_pos, parent_rad, color_index, level):
         if not nodes:
             return []
 
         node_drawables = []
         nodes = sorted(nodes, key=lambda x: x.clickCount, reverse=True)
-        color = 'green'
         radius = parent_rad * 0.3
         for i, node in enumerate(nodes):
-            center_diff = self.center_diffs[i]
+            center_diff = center_diffs[i]
+            this_radius = radius * radius_factor[i]
             x = parent_pos.getX() + center_diff[0] * parent_rad
             y = parent_pos.getY() + center_diff[1] * parent_rad
             position = Point(x, y)
-            node_drawable = self.convert_node(node, position, radius, color)
+            node_drawable = self.convert_node(node, position, this_radius, color_index, level)
             node_drawables.append(node_drawable)
-            radius = radius * 0.9
 
         for node_drawable in node_drawables:
             if isinstance(node_drawable.enclosed_node, Folder):
+                color_index = color_index + 1
+
                 node_drawable.children = self.convert_nodes_to_drawables(
                     node_drawable.enclosed_node.children,
                     node_drawable.position,
-                    node_drawable.radius)
+                    node_drawable.radius,
+                    color_index,
+                    level + 1)
                 for node_child in node_drawable.children:
                     node_child.parent = node_drawable
 
@@ -59,9 +68,9 @@ class Renderer:
         point = node_drawable.position
         circle = Circle(point, node_drawable.radius)
         circle.setFill(node_drawable.color)
-        text_position = Point(point.getX(), point.getY() + 1.3 * node_drawable.radius)
+        text_position = Point(point.getX(), point.getY() + 1.1 * node_drawable.radius)
         text = Text(text_position, node_drawable.enclosed_node.name)
-        text.setSize(5 + 31 * int(node_drawable.radius / (450)))
+        text.setSize(map_level_to_font_size[node_drawable.level])
 
         circle.draw(self.win)
         text.draw(self.win)
@@ -75,9 +84,11 @@ class Renderer:
         self.root = node
         root_loc = Point(self.half, self.half)
         root_rad = self.half - 10
-        self.root_drawable = self.convert_node(node, root_loc, root_rad, "blue")
+        root_level = 0
+        color_index = 0
+        self.root_drawable = self.convert_node(node, root_loc, root_rad, color_index, root_level)
         self.root_drawable.children = self.convert_nodes_to_drawables(
-            self.root_drawable.enclosed_node.children, root_loc, root_rad)
+            self.root_drawable.enclosed_node.children, root_loc, root_rad, color_index + 1, root_level + 1)
 
         # Draw the hierarchy
         self.draw_helper(self.root_drawable)
