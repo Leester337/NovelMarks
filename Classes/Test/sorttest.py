@@ -20,7 +20,7 @@ if __name__ == "__main__":
     cs465 = Bookmark('cs465', 'https://wiki.engr.illinois.edu/display/cs465sp13/Home', date(2013, 2, 15))
 
     root_children = [
-        Folder('classes', [cs465], date(2013, 2, 1), 40),
+        Folder('classes', [cs465], date(2013, 1, 5), 40),
         Bookmark('1', 'www.google.com', date(2013, 1, 15), 1),
         Bookmark('2', 'www.google.com', date(2013, 2, 17), 2),
         Bookmark('3', 'www.google.com', date(2013, 1, 16), 3),
@@ -34,8 +34,11 @@ if __name__ == "__main__":
     work = Folder('work', [], date(2013, 1, 15), 20)
     root = Folder('root', [cs, work], date(2012, 1, 2), 0)
 
-    #renderer.convert_node_hierarchy(root)
-    renderer.draw(root)
+    # sort by date
+    # renderer.draw_sorted(root, lambda x: x.date)
+
+    # sort by frequency
+    renderer.draw_sorted(root, lambda x: x.clickCount)
     pt = renderer.win.getMouse()
     print "X: " + str(pt.getX())
     print "Y: " + str(pt.getY())

@@ -13,16 +13,15 @@ _f_g = .45
 # Coordinates for the second group of four points
 _s_g = .54
 
-
 center_diffs = [(0, -_f_g), (_f_g, 0), (0, _f_g), (-_f_g, 0),
     (_s_g, -_s_g), (_s_g, _s_g), (-_s_g, _s_g), (-_s_g, -_s_g)]
 colors = ['blue', 'cyan', 'forest green', 'medium orchid',
           'dark orange', 'gold', 'light cyan', 'medium slate blue']
-map_level_to_font_size = {0: 30, 1: 18, 2: 10, 3: 18, 4: 14, 5: 10}
+map_level_to_font_size = {0: 30, 1: 18, 2: 10, 3: 9, 4: 14, 5: 10}
 radius_factor = [1, 1, 1, 1, .5, .5, .5, .5]
+sorted_radius = 30
 
 _title_bar_height = 40
-
 
 
 class Renderer:
@@ -40,20 +39,19 @@ class Renderer:
         return NodeDrawable(node, position, radius, colors[color_index], level)
 
 
-
     def setUpTitleBar(self):
-        titlebar = Rectangle(Point(0,0), Point(self.width,_title_bar_height))
+        titlebar = Rectangle(Point(0, 0), Point(self.width, _title_bar_height))
         titlebar.setFill("gray")
         titlebar.draw(self.win)
-        
+
         # title for NovelMarks
-        text = Text(Point(50,20),"NovelMarks")
+        text = Text(Point(50, 20), "NovelMarks")
         text.draw(self.win)
-        
+
         # search box
         entry = Entry(Point(260, 20), 30)
         entry.draw(self.win)
-        
+
         text = Text(Point(423, 20), "search")
         text.setSize(8)
         text.draw(self.win)
@@ -115,7 +113,7 @@ class Renderer:
         point = node_drawable.position
         circle = Circle(point, node_drawable.radius)
         circle.setFill(node_drawable.color)
-        text_position = Point(point.getX(), point.getY() + 1.1 * node_drawable.radius)
+        text_position = Point(point.getX(), point.getY() + 1.2 * node_drawable.radius)
         text = Text(text_position, node_drawable.enclosed_node.name)
         text.setSize(map_level_to_font_size[node_drawable.level])
 
@@ -141,6 +139,55 @@ class Renderer:
         # Draw the hierarchy
         self.draw_helper(self.root_drawable)
 
+
+    def draw_sorted(self, node, sort_function):
+    # Convert the hierarchy into a list of node drawables
+        self.root = node
+        node_list = self.flatten(node)
+        node_list = sorted(node_list, key=sort_function)
+        self.drawable_node_list = self.convert_nodes_to_sorted_drawable(node_list)
+        root_loc = Point(self.half, self.half + _title_bar_height)
+        root_rad = self.half - 10
+
+    def convert_nodes_to_sorted_drawable(self, node_list):
+        initial_x_pos = 40
+        delta_x_pos = 100
+        delta_y_pos = 100
+        x_pos = initial_x_pos
+        y_pos = 40 + _title_bar_height
+        self.node_drawable_list = []
+        # Draw nodes in a grid format
+        for node in node_list:
+            if x_pos > (self.width - 30):
+                x_pos = initial_x_pos
+                y_pos = y_pos + delta_y_pos
+            node_drawable = self.convert_node(node, Point(x_pos, y_pos), sorted_radius, 5, 0)
+            # set the root drawable
+            if self.root == node:
+                print "found a root"
+                self.root_drawable = node_drawable
+            self.node_drawable_list = self.node_drawable_list + [node_drawable]
+            self.draw_sorted_drawable(node_drawable)
+            x_pos = x_pos + delta_x_pos
+
+    def draw_sorted_drawable(self, drawable_node):
+        x_pos = drawable_node.position.getX()
+        y_pos = drawable_node.position.getY()
+        point = drawable_node.position
+        circle = Circle(point, drawable_node.radius)
+        circle.setFill(drawable_node.color)
+        text_position = Point(x_pos, y_pos + 1.5 * sorted_radius)
+        text = Text(text_position, drawable_node.enclosed_node.name)
+        text.setSize(18)
+        circle.draw(self.win)
+        text.draw(self.win)
+
+    def flatten(self, node):
+        node_list = [node]
+        if isinstance(node, Folder):
+            for child in node.children:
+                node_list = node_list + self.flatten(child)
+        return node_list
 
     """
     returns the object clicked within a folder currently opened. If whitespace was clicked,
