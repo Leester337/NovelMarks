@@ -164,7 +164,6 @@ class Renderer:
             node_drawable = self.convert_node(node, Point(x_pos, y_pos), sorted_radius, 5, 0)
             # set the root drawable
             if self.root == node:
-                print "found a root"
                 self.root_drawable = node_drawable
             self.node_drawable_list = self.node_drawable_list + [node_drawable]
             self.draw_sorted_drawable(node_drawable)

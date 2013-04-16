@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # renderer.draw_sorted(root, lambda x: x.date)
 
     # sort by frequency
-    renderer.draw_sorted(root, lambda x: x.clickCount)
+    renderer.draw_sorted(root, lambda x: x.name)
     pt = renderer.win.getMouse()
     print "X: " + str(pt.getX())
     print "Y: " + str(pt.getY())
