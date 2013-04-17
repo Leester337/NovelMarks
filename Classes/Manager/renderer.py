@@ -140,16 +140,8 @@ class Renderer:
         self.draw_helper(self.root_drawable)
 
 
-    def draw_sorted(self, node, sort_function):
+    def draw_sorted_list(self, node_list):
     # Convert the hierarchy into a list of node drawables
-        self.root = node
-        node_list = self.flatten(node)
-        node_list = sorted(node_list, key=sort_function)
-        self.drawable_node_list = self.convert_nodes_to_sorted_drawable(node_list)
-        root_loc = Point(self.half, self.half + _title_bar_height)
-        root_rad = self.half - 10
-
-    def convert_nodes_to_sorted_drawable(self, node_list):
         initial_x_pos = 40
         delta_x_pos = 100
         delta_y_pos = 100
@@ -166,10 +158,10 @@ class Renderer:
             if self.root == node:
                 self.root_drawable = node_drawable
             self.node_drawable_list = self.node_drawable_list + [node_drawable]
-            self.draw_sorted_drawable(node_drawable)
+            self.draw_sorted_node_drawable(node_drawable)
             x_pos = x_pos + delta_x_pos
 
-    def draw_sorted_drawable(self, drawable_node):
+    def draw_sorted_node_drawable(self, drawable_node):
         x_pos = drawable_node.position.getX()
         y_pos = drawable_node.position.getY()
         point = drawable_node.position
@@ -181,12 +173,6 @@ class Renderer:
         circle.draw(self.win)
         text.draw(self.win)
 
-    def flatten(self, node):
-        node_list = [node]
-        if isinstance(node, Folder):
-            for child in node.children:
-                node_list = node_list + self.flatten(child)
-        return node_list
 
     """
     returns the object clicked within a folder currently opened. If whitespace was clicked,

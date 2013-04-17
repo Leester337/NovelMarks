@@ -1,8 +1,10 @@
 import sys
-sys.path.append('../../Lib/')
 
-import node
-from graphics import *
+sys.path.append('../../Lib/')
+sys.path.append('../Model')
+
+from node import *
+from renderer import *
 
 class Manager:
     def __init__(self, scenario, save_filename="scenario_save.json"):
@@ -14,10 +16,10 @@ class Manager:
         """
 
         # TODO Remove
-        bkmk1 = Bookmark('Google', 'www.google.com') 
+        bkmk1 = Bookmark('Google', 'www.google.com')
         bkmk2 = Bookmark('Yahoo', 'www.yahoo.com')
         root = Folder('root', children=[bkmk1, bkmk2])
-
+        self.renderer = Renderer()
         self.root = root
 
     def process_user_action():
@@ -27,26 +29,36 @@ class Manager:
         System state (which may be indication to exit)
         """
         mousePt = getMouse()
-        if (mousePt.getY() >= 10 && mousePt.getY() <= 30):
-            if (mousePt.getX() >= 402 && mousePt.getX() <= 445):
+        if (mousePt.getY() >= 10 and mousePt.getY() <= 30):
+            if (mousePt.getX() >= 402 and mousePt.getX() <= 445):
+                pass
                 #Search box was clicked
                 #TODO: retrieve text by calling getText() on the entry box
-            else if (mousePt.getX() >= 540 && mousePt.getX() <= 580):
+            elif (mousePt.getX() >= 540 and mousePt.getX() <= 580):
+                pass
                 #Sort by Folders was clicked
-            else if (mousePt.getX() >= 604 && mousePt.getX() <= 636):
+            elif (mousePt.getX() >= 604 and mousePt.getX() <= 636):
+                pass
                 #Sort by Name was clicked
-            else if (mousePt.getX() >= 655 && mousePt.getX() <= 685):
+            elif (mousePt.getX() >= 655 and mousePt.getX() <= 685):
+                pass
                 #Sort by Date was clicked
-        else if (mousePt.getY() >= 40):
+        elif (mousePt.getY() >= 40):
+            pass
             #the bookmark space was clicked, proceed to check to see if a circle was clicked
-        
+
+    def flatten(self, node):
+        node_list = [node]
+        if isinstance(node, Folder):
+            for child in node.children:
+                node_list = node_list + self.flatten(child)
+        return node_list
+
+    def sort_hierarchy_into_list(self, node, sort_function):
+        self.node_list = self.flatten(node)
+        self.node_list = sorted(self.node_list, key=sort_function)
 
 
-
-
-
-
-   
 # # creates new GraphWin object, 500x500 pixels in size
 # win = GraphWin("My GUI Program", 500, 500)
 # 
