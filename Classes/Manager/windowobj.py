@@ -3,6 +3,7 @@ class WindowObjectType:
     SEARCH = 2
     GO_UP = 3
     ADD = 4
+    EXIT = 5
 
 class WindowObject:
     def __init__(self, obj_type, value=None):
