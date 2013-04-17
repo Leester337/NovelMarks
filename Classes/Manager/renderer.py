@@ -41,8 +41,10 @@ class Renderer:
         self.width = 850
         self.height = 850
         self.half = self.width / 2
+        self.root_drawable = None
+        self.node_drawable_list = None
 
-        self.win = GraphWin('My GUI Program', self.width, self.height)
+        self.win = GraphWin('Novelmarks', self.width, self.height)
 
         self.setUpTitleBar()
 
@@ -137,6 +139,7 @@ class Renderer:
                 self.draw_helper(child)
 
     def draw(self, node):
+        self.clear()
         self.hierarchy_mode = True
         # Convert the hierarchy into node drawables
         self.root = node
@@ -154,6 +157,7 @@ class Renderer:
 
 
     def draw_sorted_list(self, node_list):
+        self.clear()
         self.hierarchy_mode = False
         # Convert the hierarchy into a list of node drawables
         initial_x_pos = 40
@@ -250,6 +254,13 @@ class Renderer:
                 return child
                 #if no children were clicked, user clicked open space and return the parent object
         return parent
+
+    def clear(self):
+        rectangle = Rectangle(Point(0, 40), Point(850, 850))
+        rectangle.setFill("white")
+        rectangle.draw(self.win)
+
+
 
 
 
