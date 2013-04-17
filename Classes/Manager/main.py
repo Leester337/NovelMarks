@@ -14,11 +14,20 @@ if not os.path.exists(scenario_filepath):
     print("Invalid scenario file")
     sys.exit(1)
 try:
-    scenario = json.load(open(scenario_filepath))
+    scenario_fp = open(scenario_filepath)
+    scenario = json.load()
+    scenario_fp.close()
 except Exception as e:
-    print("Error when opening scenario JSON: ", str(e))
+    print("Error when loading scenario JSON: ", str(e))
     sys.exit(1)
 
-manager = Manager(scenario, "scenario_chkpnt.json")
+prog_manager = Manager(scenario, "scenario_chkpnt.json")
 
-# 
+
+# While manager keeps returning success actions, keep going
+manager_state = prog_manager.state
+while manager_state == manager.ManagerState.RUNNING:
+    manager_state = prog_manager.process_user_action()
+
+print("Bye!")
+

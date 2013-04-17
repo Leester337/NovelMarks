@@ -1,4 +1,5 @@
-__author__ = 'john'
+#!/usr/bin/python
+
 import sys
 from datetime import date
 
