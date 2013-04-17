@@ -36,9 +36,8 @@ class Folder(Node):
         if children is None:
             self.children = []
         else:
-            self.children = list(children)
             for child in children:
-                child.parent = self
+                self.add_child(child)
 
     def add_child(self, obj):
         """Adds the object to the folder
@@ -46,10 +45,11 @@ class Folder(Node):
         Keyword Args:
         obj -- object to add
         """
-        if obj is None:
-            raise ValueError("Cannot add empty child")
+        if obj is None or not isinstance(obj, Node):
+            raise ValueError("Cannot add invalid child")
         if obj in self.children:
             return
+        self.children.append(obj)
         obj.parent = self
         obj.update_depth()
 

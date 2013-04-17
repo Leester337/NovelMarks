@@ -7,30 +7,26 @@ from node import *
 from renderer import *
 from windowobj import *
 import webbrowser
+import scenario
 
 class ManagerState:
     RUNNING = 1
     EXITED = 2
 
 class Manager:
-    def __init__(self, scenario, save_filename="scenario_save.json"):
+    def __init__(self, scenario_filename, save_filename="scenario_save.json"):
         """Creates a new manager object based off the given scenario representation
 
         Keyword Args:
         scenario -- dict representing all information necessary for the scenario
         save_filename -- name to save the scenario's current state to
+
+        Throws:
+        IOError if scenario_filename isn't valid
         """
-
-        # TODO Remove, for testing purposes only
-        bkmk1 = Bookmark('Google', 'http://www.google.com')
-        bkmk2 = Bookmark('Yahoo', 'http://www.yahoo.com')
-        fldr1 = Folder('TestFolder', children=[bkmk1, bkmk2])
-        root = Folder('root', children=[fldr1])
-
-        # TODO Parse scenario file into manager, set root appropriately from that
         self.renderer = Renderer()
-        self.root = root
-        self.current_dir = root
+        self.root = scenario.deserialize(scenario_filename)
+        self.current_dir = self.root
         self.state = ManagerState.RUNNING
 
     def manage(self):
@@ -99,7 +95,7 @@ def _find_matched_objs(tree_root, search_text):
     List of matched objects
     """
     matched_objects = list()
-    if search_text in tree_root.name or (isinstance(tree_root, Bookmark) and search_text in tree_root.url):
+    if search_text.lower() in tree_root.name.lower() or (isinstance(tree_root, Bookmark) and search_text.lower() in tree_root.url.lower()):
         matched_objects.append(tree_root)
     if isinstance(tree_root, Folder):
         for child in tree_root.children:
