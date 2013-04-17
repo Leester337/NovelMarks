@@ -156,7 +156,7 @@ class Renderer:
         self.draw_helper(self.root_drawable)
 
 
-    def draw_sorted_list(self, node_list):
+    def draw_grid(self, node_list):
         self.clear()
         self.hierarchy_mode = False
         # Convert the hierarchy into a list of node drawables

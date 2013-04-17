@@ -21,7 +21,6 @@ class Manager:
         save_filename -- name to save the scenario's current state to
         """
 
-
         # TODO Remove, for testing purposes only
         bkmk1 = Bookmark('Google', 'http://www.google.com')
         bkmk2 = Bookmark('Yahoo', 'http://www.yahoo.com')
@@ -47,28 +46,46 @@ class Manager:
             if clicked_obj is None:
                 continue
 
+            obj_type = clicked_obj.obj_type
             # change current directory to a new folder
-            if clicked_obj.obj_type == WindowObjectType.BOOKMARK_OBJ:
+            if obj_type == WindowObjectType.BOOKMARK_OBJ:
                 bookmark_obj = clicked_obj.value
+                bookmark_obj.clickCount += 1
                 if isinstance(bookmark_obj, Bookmark):
                     webbrowser.open(bookmark_obj.url)
                 elif isinstance(bookmark_obj, Folder):
                     self.current_dir = clicked_obj.value
                 self.renderer.draw(self.current_dir)
             # read text and display list of search matches
-            elif clicked_obj.obj_type == WindowObjectType.SEARCH:
+            elif obj_type == WindowObjectType.SEARCH:
                 search_text = clicked_obj.value
-                matched_objs = _find_matched_objs(self.root, search_text)
-                self.renderer.draw_sorted_list(matched_objs)
+                if len(search_text.strip()) == 0:
+                    self.renderer.draw(self.current_dir)
+                else:
+                    matched_objs = _find_matched_objs(self.root, search_text)
+                    self.renderer.draw_grid(matched_objs)
             # go up a directory if it's possible
-            elif clicked_obj.obj_type == WindowObjectType.GO_UP:
+            elif obj_type == WindowObjectType.GO_UP:
                 if self.current_dir.parent is not None:
                     self.current_dir = self.current_dir.parent
                     self.renderer.draw(self.current_dir) 
-            elif clicked_obj.obj_type == WindowObjectType.ADD:
-                # TODO Add a bookmark using passed-in information
+            # TODO Add a bookmark using passed-in information
+            elif obj_type == WindowObjectType.ADD:
                 pass
-            elif clicked_obj.obj_type == WindowObjectType.EXIT:
+            # Sort and display all nodes by tree depth
+            elif obj_type == WindowObjectType.SORT_HIER:
+                sorted_objs = _sort_hierarchy(self.root, lambda node : node.depth)
+                self.renderer.draw_grid(sorted_objs)
+            # Sort and display all nodes by alphabetical name
+            elif obj_type == WindowObjectType.SORT_NAME:
+                sorted_objs = _sort_hierarchy(self.root, lambda node : node.name.lower())
+                self.renderer.draw_grid(sorted_objs)
+            # Sort and display all nodes by date
+            elif obj_type == WindowObjectType.SORT_DATE:
+                sorted_objs = _sort_hierarchy(self.root, lambda node : str(node.date))
+                self.renderer.draw_grid(sorted_objs)
+            # Quit the program
+            elif obj_type == WindowObjectType.EXIT:
                 self.state = ManagerState.EXITED
 
 def _find_matched_objs(tree_root, search_text):
@@ -89,22 +106,21 @@ def _find_matched_objs(tree_root, search_text):
             matched_objects = matched_objects + _find_matched_objs(child, search_text)
     return matched_objects
 
-    def _flatten(self, node):
-        """Recursive function to flattens a node hierarchy into a list
-        
-        Keyword Args;
-        node -- root node to flatten descendants into list
+def _flatten(node):
+    """Recursive function to flattens a node hierarchy into a list
+    
+    Keyword Args;
+    node -- root node to flatten descendants into list
 
-        Returns:
-        Nodes flattened into linear form
-        """
-        node_list = [node]
-        if isinstance(node, Folder):
-            for child in node.children:
-                node_list = node_list + self.flatten(child)
-        return node_list
+    Returns:
+    Nodes flattened into linear form
+    """
+    node_list = [node]
+    if isinstance(node, Folder):
+        for child in node.children:
+            node_list = node_list + _flatten(child)
+    return node_list
 
-    def _sort_hierarchy_into_list(self, node, sort_function):
-        self.node_list = self._flatten(node)
-        self.node_list = sorted(self.node_list, key=sort_function)
-
+def _sort_hierarchy(node, sort_function):
+    node_list = _flatten(node)
+    return sorted(node_list, key=sort_function)

@@ -10,9 +10,17 @@ class Node:
         clickCount -- frequency of node clicks
         """
         self.parent = None
+        self.depth = 0
         self.name = name
         self.date = date
         self.clickCount = clickCount
+
+    def update_depth(self):
+        if self.parent is None:
+            self.depth = 0
+        else:
+            self.depth = self.parent.depth + 1
+
 
 class Folder(Node):
     def __init__(self, name, children = None, date = datetime.now(), clickCount = 0):
@@ -31,6 +39,28 @@ class Folder(Node):
             self.children = list(children)
             for child in children:
                 child.parent = self
+
+    def add_child(self, obj):
+        """Adds the object to the folder
+
+        Keyword Args:
+        obj -- object to add
+        """
+        if obj is None:
+            raise ValueError("Cannot add empty child")
+        if obj in self.children:
+            return
+        obj.parent = self
+        obj.update_depth()
+
+    def update_depth(self):
+        """Recursively updates the depth of the node and its children relative to its parent"""
+        if self.parent is None:
+            self.depth = 0
+        else:
+            self.depth = self.parent.depth + 1
+        for child in self.children:
+            child.update_depth()
 
 class Bookmark(Node):
     def __init__(self, name, url, date = datetime.now(), clickCount = 0):
