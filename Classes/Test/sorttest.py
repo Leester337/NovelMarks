@@ -40,8 +40,9 @@ if __name__ == "__main__":
     # sort by frequency
     manager.sort_hierarchy_into_list(root, lambda x: x.name)
     manager.renderer.draw_sorted_list(manager.node_list)
+    #manager.renderer.draw(root)
     pt = manager.renderer.get_object_clicked()
-    print pt.enclosed_node.name
+    print pt.obj_type
 
 
 

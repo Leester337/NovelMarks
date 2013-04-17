@@ -6,6 +6,7 @@ sys.path.append('../Model/')
 from graphics import *
 from node import *
 from nodedrawable import *
+from windowobj import *
 import math
 
 __author__ = 'john'
@@ -23,7 +24,15 @@ radius_factor = [1, 1, 1, 1, .5, .5, .5, .5]
 sorted_radius = 30
 
 _title_bar_height = 40
-
+_novelmarks_logo_center = Point(50, 20)
+_search_box_center = Point(260, 20)
+_search_text_center = Point(423, 20)
+_search_button_top_left = Point(402, 10)
+_search_button_bottom_right = Point(445, 30)
+_sort_by_text_center = Point(500, 20)
+_sort_by_folders_center = Point(560, 20)
+_sort_by_name_center = Point(620, 20)
+_sort_by_date_center = Point(670, 20)
 
 class Renderer:
     def __init__(self):
@@ -47,35 +56,36 @@ class Renderer:
         titlebar.draw(self.win)
 
         # title for NovelMarks
-        text = Text(Point(50, 20), "NovelMarks")
+        text = Text(_novelmarks_logo_center, "NovelMarks")
+        text.setSize(14)
         text.draw(self.win)
 
         # search box
-        entry = Entry(Point(260, 20), 30)
-        entry.draw(self.win)
+        self.entry = Entry(_search_box_center, 30)
+        self.entry.draw(self.win)
 
-        text = Text(Point(423, 20), "search")
-        text.setSize(8)
+        text = Text(_search_text_center, "search")
+        text.setSize(12)
         text.draw(self.win)
 
-        button = Rectangle(Point(402, 10), Point(445, 30))
+        button = Rectangle(_search_button_top_left, _search_button_bottom_right)
         button.draw(self.win)
 
-        text = Text(Point(500, 20), "sort by:")
-        text.setSize(8)
+        text = Text(_sort_by_text_center, "sort by:")
+        text.setSize(14)
         text.draw(self.win)
 
-        text = Text(Point(560, 20), "folders")
+        text = Text(_sort_by_folders_center, "folders")
         text.setSize(10)
         text.setStyle("bold")
         text.draw(self.win)
 
-        text = Text(Point(620, 20), "name")
+        text = Text(_sort_by_name_center, "name")
         text.setSize(10)
         text.setStyle("bold")
         text.draw(self.win)
 
-        text = Text(Point(670, 20), "date")
+        text = Text(_sort_by_date_center, "date")
         text.setSize(10)
         text.setStyle("bold")
         text.draw(self.win)
@@ -196,23 +206,40 @@ class Renderer:
 
     def get_object_clicked(self):
         click_point = self.win.getMouse()
-        meta_object = None
-        if(self.hierarchy_mode):
-            meta_object = self.get_object_clicked_hierarchy(click_point)
-        else:
-            meta_object = self.get_object_clicked_grid(click_point)
-        return meta_object
+        x, y = click_point.getX(), click_point.getY()
+        if(x <= 20 and y <= 10):
+            return WindowObject(WindowObjectType.EXIT, None)
+        elif (y >= 10 and y <= _title_bar_height - 10):
+            if (x >= 402 and x <= 445):
+                return WindowObject(WindowObjectType.SEARCH, self.entry.getText())
+            elif (x >= 540 and x <= 580):
+                return WindowObject(WindowObjectType.SORT_HIER, None)
+                #Sort by Folders was clicked
+            elif (x >= 604 and x <= 636):
+                return WindowObject(WindowObjectType.SORT_NAME)
+                #Sort by Name was clicked
+            elif (x >= 655 and x <= 685):
+                return WindowObject(WindowObjectType.SORT_DATE)
+                #Sort by Date was clicked
+        elif (y >= _title_bar_height):
+            if(self.hierarchy_mode):
+                return self.get_object_clicked_hierarchy(click_point)
+            else:
+                return self.get_object_clicked_grid(click_point)
 
     def get_object_clicked_grid(self, click_point):
         for node_drawable in self.node_drawable_list:
             if(self.within_circle(node_drawable.position, click_point, node_drawable.radius)):
-                return node_drawable
+                return WindowObject(WindowObjectType.BOOKMARK_OBJ, node_drawable.enclosed_node)
         return None
 
     def get_object_clicked_hierarchy(self, click_point):
+        if(not self.within_circle(click_point, self.root_drawable.position, self.root_drawable.radius)):
+            return WindowObject(WindowObjectType.GO_UP)
+            # click outside of the radius of the root circle
         child_clicked = self.find_subobject(self.root_drawable, click_point)
         subchild_clicked = self.find_subobject(child_clicked, click_point)
-        return subchild_clicked
+        return WindowObject(WindowObjectType.BOOKMARK_OBJ, subchild_clicked.enclosed_node)
 
 
     def find_subobject(self, parent, click_point):
@@ -221,7 +248,7 @@ class Renderer:
             x, y = click_point.getX(), click_point.getY()
             if(self.within_circle(child.position, click_point, child.radius)):
                 return child
-            #if no children were clicked, user clicked open space and return the parent object
+                #if no children were clicked, user clicked open space and return the parent object
         return parent
 
 
