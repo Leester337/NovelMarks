@@ -6,7 +6,6 @@ sys.path.append('../Manager')
 from manager import *
 
 if __name__ == "__main__":
-    #renderer = Renderer()
     manager = Manager("blah", "blah")
 
     # Testing drawing of absolute nodes
@@ -40,8 +39,8 @@ if __name__ == "__main__":
     # sort by frequency
     manager.sort_hierarchy_into_list(root, lambda x: x.name)
     manager.renderer.draw_sorted_list(manager.node_list)
-    pt = manager.renderer.win.getMouse()
-    print "X: " + str(pt.getX())
-    print "Y: " + str(pt.getY())
+    pt = manager.renderer.get_object_clicked()
+    print pt.enclosed_node.name
+
 
 

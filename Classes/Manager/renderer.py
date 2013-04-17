@@ -6,6 +6,7 @@ sys.path.append('../Model/')
 from graphics import *
 from node import *
 from nodedrawable import *
+import math
 
 __author__ = 'john'
 # Coordinates for first group of four points
@@ -26,6 +27,7 @@ _title_bar_height = 40
 
 class Renderer:
     def __init__(self):
+        self.hierarchy_mode = True
         self.root = None
         self.width = 850
         self.height = 850
@@ -125,6 +127,7 @@ class Renderer:
                 self.draw_helper(child)
 
     def draw(self, node):
+        self.hierarchy_mode = True
         # Convert the hierarchy into node drawables
         self.root = node
         # added _title_bar_height to the y parameter to make room for the titlebar
@@ -141,7 +144,8 @@ class Renderer:
 
 
     def draw_sorted_list(self, node_list):
-    # Convert the hierarchy into a list of node drawables
+        self.hierarchy_mode = False
+        # Convert the hierarchy into a list of node drawables
         initial_x_pos = 40
         delta_x_pos = 100
         delta_y_pos = 100
@@ -181,23 +185,49 @@ class Renderer:
     of the opened folder.
     """
 
+    def within_circle(self, point1, point2, radius):
+        x_squared = math.pow(point1.getX() - point2.getX(), 2)
+        y_squared = math.pow(point1.getY() - point2.getY(), 2)
+        r_squared = math.pow(radius, 2)
+        if(x_squared + y_squared <= r_squared):
+            return True
+        else:
+            return False
+
     def get_object_clicked(self):
-        click_point = getMouse()
-        # return the node at the click position
-        child_clicked = find_subobject(self, self.root_drawable, click_point)
-        subchild_clicked = find_subobject(self, child_clicked, click_point)
+        click_point = self.win.getMouse()
+        meta_object = None
+        if(self.hierarchy_mode):
+            meta_object = self.get_object_clicked_hierarchy(click_point)
+        else:
+            meta_object = self.get_object_clicked_grid(click_point)
+        return meta_object
+
+    def get_object_clicked_grid(self, click_point):
+        for node_drawable in self.node_drawable_list:
+            if(self.within_circle(node_drawable.position, click_point, node_drawable.radius)):
+                return node_drawable
+        return None
+
+    def get_object_clicked_hierarchy(self, click_point):
+        child_clicked = self.find_subobject(self.root_drawable, click_point)
+        subchild_clicked = self.find_subobject(child_clicked, click_point)
         return subchild_clicked
 
 
     def find_subobject(self, parent, click_point):
         for child in parent.children:
-            click_center_dist = math.sqrt(math.pow((click_point.x - child.position.x), 2) +\
-                                          math.pow((click_point.y - child.position.y), 2))
             #if the click was within the child object of the current folder
-            if (click_center_dist <= child.radius):
+            x, y = click_point.getX(), click_point.getY()
+            if(self.within_circle(child.position, click_point, child.radius)):
                 return child
-                #if no children were clicked, user clicked open space and return the parent object
+            #if no children were clicked, user clicked open space and return the parent object
         return parent
+
+
+
+
+
 
 
 
