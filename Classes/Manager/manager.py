@@ -5,6 +5,12 @@ sys.path.append('../Model')
 
 from node import *
 from renderer import *
+from windowobj import *
+import webbrowser
+
+class ManagerState:
+    RUNNING = 1
+    EXITED = 2
 
 class Manager:
     def __init__(self, scenario, save_filename="scenario_save.json"):
@@ -15,39 +21,75 @@ class Manager:
         save_filename -- name to save the scenario's current state to
         """
 
-        # TODO Remove
-        bkmk1 = Bookmark('Google', 'www.google.com')
-        bkmk2 = Bookmark('Yahoo', 'www.yahoo.com')
-        root = Folder('root', children=[bkmk1, bkmk2])
+
+        # TODO Remove, for testing purposes only
+        bkmk1 = Bookmark('Google', 'http://www.google.com')
+        bkmk2 = Bookmark('Yahoo', 'http://www.yahoo.com')
+        fldr1 = Folder('TestFolder', children=[bkmk1, bkmk2])
+        root = Folder('root', children=[fldr1])
+
+        # TODO Parse scenario file into manager, set root appropriately from that
         self.renderer = Renderer()
         self.root = root
+        self.current_dir = root
+        self.state = ManagerState.RUNNING
 
-    def process_user_action():
-        """Blocks until the user performs an action
+    def manage(self):
+        """Main execution loop of the program"""
+        self.renderer.draw(self.current_dir)
+        while self.state != ManagerState.EXITED:
+            # see what user's clicked
+            try:
+                clicked_obj = self.renderer.get_object_clicked()
+            except GraphicsError:
+                self.state = ManagerState.EXITED
+                continue
+            if clicked_obj is None:
+                continue
 
-        Return:
-        System state (which may be indication to exit)
-        """
-        mousePt = getMouse()
-        if (mousePt.getY() >= 10 and mousePt.getY() <= 30):
-            if (mousePt.getX() >= 402 and mousePt.getX() <= 445):
+            # change current directory to a new folder
+            if clicked_obj.obj_type == WindowObjectType.BOOKMARK_OBJ:
+                bookmark_obj = clicked_obj.value
+                if isinstance(bookmark_obj, Bookmark):
+                    webbrowser.open(bookmark_obj.url)
+                elif isinstance(bookmark_obj, Folder):
+                    self.current_dir = clicked_obj.value
+                self.renderer.draw(self.current_dir)
+            # read text and display list of search matches
+            elif clicked_obj.obj_type == WindowObjectType.SEARCH:
+                search_text = clicked_obj.value
+                matched_objs = _find_matched_objs(self.root, search_text)
+                self.renderer.draw_sorted_list(matched_objs)
+            # go up a directory if it's possible
+            elif clicked_obj.obj_type == WindowObjectType.GO_UP:
+                if self.current_dir.parent is not None:
+                    self.current_dir = self.current_dir.parent
+                    self.renderer.draw(self.current_dir) 
+            elif clicked_obj.obj_type == WindowObjectType.ADD:
+                # TODO Add a bookmark using passed-in information
                 pass
-                #Search box was clicked
-                #TODO: retrieve text by calling getText() on the entry box
-            elif (mousePt.getX() >= 540 and mousePt.getX() <= 580):
-                pass
-                #Sort by Folders was clicked
-            elif (mousePt.getX() >= 604 and mousePt.getX() <= 636):
-                pass
-                #Sort by Name was clicked
-            elif (mousePt.getX() >= 655 and mousePt.getX() <= 685):
-                pass
-                #Sort by Date was clicked
-        elif (mousePt.getY() >= 40):
-            pass
-            #the bookmark space was clicked, proceed to check to see if a circle was clicked
+            elif clicked_obj.obj_type == WindowObjectType.EXIT:
+                self.state = ManagerState.EXITED
 
-    def flatten(self, node):
+def _find_matched_objs(tree_root, search_text):
+    """Recursively searches the bookmark obj tree rooted at the given node for any reference to the search term
+
+    Keyword Args:
+    tree_root -- root of tree to search
+    search_text -- term to search bookmark obj. names/urls for
+
+    Returns:
+    List of matched objects
+    """
+    matched_objects = list()
+    if search_text in tree_root.name or (isinstance(tree_root, Bookmark) and search_text in tree_root.url):
+        matched_objects.append(tree_root)
+    if isinstance(tree_root, Folder):
+        for child in tree_root.children:
+            matched_objects = matched_objects + _find_matched_objs(child, search_text)
+    return matched_objects
+
+    def _flatten(self, node):
         """Recursive function to flattens a node hierarchy into a list
         
         Keyword Args;
@@ -62,7 +104,7 @@ class Manager:
                 node_list = node_list + self.flatten(child)
         return node_list
 
-    def sort_hierarchy_into_list(self, node, sort_function):
-        self.node_list = self.flatten(node)
+    def _sort_hierarchy_into_list(self, node, sort_function):
+        self.node_list = self._flatten(node)
         self.node_list = sorted(self.node_list, key=sort_function)
 
