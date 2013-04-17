@@ -4,10 +4,9 @@ from datetime import date
 
 sys.path.append('../Manager')
 from manager import *
-from renderer import *
 
 if __name__ == "__main__":
-    renderer = Renderer()
+    #renderer = Renderer()
     manager = Manager("blah", "blah")
 
     # Testing drawing of absolute nodes
@@ -39,9 +38,9 @@ if __name__ == "__main__":
     # renderer.draw_sorted(root, lambda x: x.date)
 
     # sort by frequency
-    manager.sort_hierarchy_into_list(root, lambda x: x.date)
-    renderer.draw_sorted_list(manager.node_list)
-    pt = renderer.win.getMouse()
+    manager.sort_hierarchy_into_list(root, lambda x: x.name)
+    manager.renderer.draw_sorted_list(manager.node_list)
+    pt = manager.renderer.win.getMouse()
     print "X: " + str(pt.getX())
     print "Y: " + str(pt.getY())
 
