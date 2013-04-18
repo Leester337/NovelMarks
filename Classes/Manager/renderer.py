@@ -49,6 +49,9 @@ class Renderer:
         self.setUpTitleBar()
 
     def convert_node(self, node, position, radius, color_index, level):
+        # give bookmarks a different color
+        if isinstance(node, Bookmark):
+            color_index = (color_index + int(len(colors) / 2)) % len(colors)
         return NodeDrawable(node, position, radius, colors[color_index], level)
 
 
