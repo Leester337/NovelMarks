@@ -7,7 +7,7 @@ import json
 
 # argument sanity check
 if len(sys.argv) != 2:
-    print("usage: ", sys.argv[0], " <path to scenario file>")
+    print("usage: " + sys.argv[0] + " <path to scenario file>")
     sys.exit(1)
 scenario_filepath = sys.argv[1]
 
